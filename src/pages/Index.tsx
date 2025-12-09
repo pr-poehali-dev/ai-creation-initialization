@@ -18,6 +18,7 @@ const Index = () => {
   const [promoCode, setPromoCode] = useState('');
   const [isRootMode, setIsRootMode] = useState(false);
   const [promoError, setPromoError] = useState('');
+  const [showStartDialog, setShowStartDialog] = useState(false);
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
@@ -84,7 +85,10 @@ const Index = () => {
               <Icon name="Key" size={16} className="mr-1" />
               Промокод
             </Button>
-            <Button className="bg-gradient-to-r from-primary to-secondary hover:opacity-90">
+            <Button 
+              onClick={() => setShowStartDialog(true)}
+              className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+            >
               Начать
             </Button>
           </div>
@@ -112,7 +116,11 @@ const Index = () => {
           </p>
 
           <div className="flex gap-4 justify-center mb-16 animate-scale-in">
-            <Button size="lg" className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-lg px-8">
+            <Button 
+              size="lg" 
+              onClick={() => setShowStartDialog(true)}
+              className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-lg px-8"
+            >
               <Icon name="Rocket" size={20} className="mr-2" />
               Попробовать бесплатно
             </Button>
@@ -473,6 +481,69 @@ const Index = () => {
               <Icon name="Unlock" size={18} className="mr-2" />
               Активировать
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showStartDialog} onOpenChange={setShowStartDialog}>
+        <DialogContent className="bg-card border-primary/30 max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <Icon name="Sparkles" size={28} className="text-primary" />
+              Начните работу с AI прямо сейчас!
+            </DialogTitle>
+            <DialogDescription className="text-base">
+              Выберите способ начала работы с нашей платформой
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <Card 
+              className="p-6 border-primary/30 bg-gradient-to-br from-primary/5 to-secondary/5 hover:border-primary/50 cursor-pointer transition-all hover:scale-105"
+              onClick={() => scrollToSection('примеры')}
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0">
+                  <Icon name="MessageSquare" size={24} className="text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold mb-2">Попробовать чатбот</h3>
+                  <p className="text-muted-foreground text-sm">Пообщайтесь с AI прямо сейчас и оцените возможности</p>
+                </div>
+                <Icon name="ChevronRight" size={24} className="text-primary" />
+              </div>
+            </Card>
+
+            <Card 
+              className="p-6 border-secondary/30 bg-gradient-to-br from-secondary/5 to-accent/5 hover:border-secondary/50 cursor-pointer transition-all hover:scale-105"
+              onClick={() => scrollToSection('тарифы')}
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary to-accent flex items-center justify-center flex-shrink-0">
+                  <Icon name="CreditCard" size={24} className="text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold mb-2">Выбрать тариф</h3>
+                  <p className="text-muted-foreground text-sm">Подберите подходящий план для вашего бизнеса</p>
+                </div>
+                <Icon name="ChevronRight" size={24} className="text-secondary" />
+              </div>
+            </Card>
+
+            <Card 
+              className="p-6 border-accent/30 bg-gradient-to-br from-accent/5 to-primary/5 hover:border-accent/50 cursor-pointer transition-all hover:scale-105"
+              onClick={() => scrollToSection('контакты')}
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent to-primary flex items-center justify-center flex-shrink-0">
+                  <Icon name="Mail" size={24} className="text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold mb-2">Связаться с нами</h3>
+                  <p className="text-muted-foreground text-sm">Получите персональную консультацию по интеграции</p>
+                </div>
+                <Icon name="ChevronRight" size={24} className="text-accent" />
+              </div>
+            </Card>
           </div>
         </DialogContent>
       </Dialog>
