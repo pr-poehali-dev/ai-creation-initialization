@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import Icon from '@/components/ui/icon';
 import RootPanel from '@/components/RootPanel';
 import AdminPanel from '@/components/AdminPanel';
+import BillingPanel from '@/components/BillingPanel';
 
 const Index = () => {
   const [messages, setMessages] = useState<Array<{text: string, isUser: boolean}>>([
@@ -30,15 +31,59 @@ const Index = () => {
     confirmPassword: ''
   });
   const [registerError, setRegisterError] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [showBilling, setShowBilling] = useState(false);
 
-  const handleSendMessage = () => {
+  const getAIResponse = (userMessage: string): string => {
+    const msg = userMessage.toLowerCase();
+    
+    if (msg.includes('привет') || msg.includes('hello') || msg.includes('hi')) {
+      return 'Привет! Я AI-ассистент нового поколения. Рад помочь вам! 🚀';
+    }
+    
+    if (msg.includes('как дела') || msg.includes('how are you')) {
+      return 'У меня всё отлично, спасибо! Я готов помочь вам с любыми вопросами по автоматизации бизнеса. Чем могу быть полезен?';
+    }
+    
+    if (msg.includes('тариф') || msg.includes('цена') || msg.includes('price')) {
+      return 'У нас есть 3 тарифа:\n• Старт - бесплатно (100 диалогов/месяц)\n• Бизнес - 4 990₽/мес (5000 диалогов)\n• Энтерпрайз - по запросу (безлимит)\n\nКакой план вас интересует?';
+    }
+    
+    if (msg.includes('что ты умеешь') || msg.includes('возможности') || msg.includes('what can you')) {
+      return 'Я могу помочь вам с:\n• Поддержкой клиентов 24/7\n• Анализом данных и аналитикой\n• Генерацией контента\n• Автоматизацией бизнес-процессов\n• Интеграциями с CRM и мессенджерами';
+    }
+    
+    if (msg.includes('спасибо') || msg.includes('thanks')) {
+      return 'Пожалуйста! Всегда рад помочь. Если есть ещё вопросы - пишите! 😊';
+    }
+    
+    if (msg.includes('контакт') || msg.includes('связать') || msg.includes('contact')) {
+      return 'Связаться с нами можно:\n📧 Email: hello@aiplatform.ru\n📞 Телефон: +7 (495) 123-45-67\n📍 Офис: Москва, ул. Тверская, 1\n\nОтветим в течение 24 часов!';
+    }
+    
+    const responses = [
+      'Интересный вопрос! Я могу помочь вам с автоматизацией поддержки клиентов, анализом данных и многим другим. Расскажите подробнее о вашей задаче?',
+      'Отличный вопрос! Наша AI-платформа может помочь с этим. Хотите узнать больше о наших тарифах?',
+      'Понимаю вас! Я специализируюсь на решении бизнес-задач с помощью AI. Могу порекомендовать лучшее решение для вашей компании.',
+      'Здорово! Я здесь, чтобы помочь. Могу проконсультировать по интеграции, тарифам или возможностям платформы. Что вас интересует?'
+    ];
+    
+    return responses[Math.floor(Math.random() * responses.length)];
+  };
+
+  const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
     
-    setMessages([...messages, 
-      { text: inputMessage, isUser: true },
-      { text: 'Отличный вопрос! Я могу помочь с анализом данных, генерацией контента и автоматизацией бизнес-процессов.', isUser: false }
-    ]);
+    const userMsg = inputMessage;
+    setMessages(prev => [...prev, { text: userMsg, isUser: true }]);
     setInputMessage('');
+    setIsTyping(true);
+    
+    setTimeout(() => {
+      const aiResponse = getAIResponse(userMsg);
+      setMessages(prev => [...prev, { text: aiResponse, isUser: false }]);
+      setIsTyping(false);
+    }, 1000);
   };
 
   const scrollToSection = (id: string) => {
@@ -79,8 +124,8 @@ const Index = () => {
       return;
     }
     
-    alert(`Регистрация успешна!\nПлан: ${selectedPlan}\nЛогин: ${registerForm.username}`);
     setShowRegisterDialog(false);
+    setShowBilling(true);
     setRegisterForm({ username: '', email: '', password: '', confirmPassword: '' });
     setRegisterError('');
   };
@@ -91,6 +136,10 @@ const Index = () => {
 
   if (isAdminMode) {
     return <AdminPanel />;
+  }
+
+  if (showBilling) {
+    return <BillingPanel selectedPlan={selectedPlan} onClose={() => setShowBilling(false)} />;
   }
 
   return (
@@ -271,6 +320,17 @@ const Index = () => {
                       </div>
                     </div>
                   ))}
+                  {isTyping && (
+                    <div className="flex justify-start animate-fade-in">
+                      <div className="bg-muted text-foreground px-4 py-2 rounded-xl flex items-center gap-2">
+                        <div className="flex gap-1">
+                          <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                          <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                          <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="flex gap-2">
