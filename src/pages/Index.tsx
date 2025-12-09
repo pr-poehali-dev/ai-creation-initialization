@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import RootPanel from '@/components/RootPanel';
+import AdminPanel from '@/components/AdminPanel';
 
 const Index = () => {
   const [messages, setMessages] = useState<Array<{text: string, isUser: boolean}>>([
@@ -19,6 +20,16 @@ const Index = () => {
   const [isRootMode, setIsRootMode] = useState(false);
   const [promoError, setPromoError] = useState('');
   const [showStartDialog, setShowStartDialog] = useState(false);
+  const [showRegisterDialog, setShowRegisterDialog] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState('');
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [registerForm, setRegisterForm] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [registerError, setRegisterError] = useState('');
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
@@ -40,13 +51,46 @@ const Index = () => {
       setIsRootMode(true);
       setShowPromoDialog(false);
       setPromoError('');
+    } else if (promoCode === '@Itzloroxucape') {
+      setIsAdminMode(true);
+      setShowPromoDialog(false);
+      setPromoError('');
     } else {
       setPromoError('Неверный промокод!');
     }
   };
 
+  const handlePlanSelect = (planName: string) => {
+    setSelectedPlan(planName);
+    setShowRegisterDialog(true);
+  };
+
+  const handleRegister = () => {
+    if (!registerForm.username || !registerForm.email || !registerForm.password) {
+      setRegisterError('Заполните все поля');
+      return;
+    }
+    if (registerForm.password !== registerForm.confirmPassword) {
+      setRegisterError('Пароли не совпадают');
+      return;
+    }
+    if (registerForm.password.length < 6) {
+      setRegisterError('Пароль должен быть минимум 6 символов');
+      return;
+    }
+    
+    alert(`Регистрация успешна!\nПлан: ${selectedPlan}\nЛогин: ${registerForm.username}`);
+    setShowRegisterDialog(false);
+    setRegisterForm({ username: '', email: '', password: '', confirmPassword: '' });
+    setRegisterError('');
+  };
+
   if (isRootMode) {
     return <RootPanel />;
+  }
+
+  if (isAdminMode) {
+    return <AdminPanel />;
   }
 
   return (
@@ -344,7 +388,11 @@ const Index = () => {
                   ))}
                 </ul>
 
-                <Button className={`w-full ${plan.popular ? 'bg-gradient-to-r from-primary to-secondary hover:opacity-90' : 'border-primary/30'}`} variant={plan.popular ? 'default' : 'outline'}>
+                <Button 
+                  onClick={() => handlePlanSelect(plan.name)}
+                  className={`w-full ${plan.popular ? 'bg-gradient-to-r from-primary to-secondary hover:opacity-90' : 'border-primary/30'}`} 
+                  variant={plan.popular ? 'default' : 'outline'}
+                >
                   {plan.price === 'По запросу' ? 'Связаться' : 'Выбрать план'}
                 </Button>
               </Card>
@@ -544,6 +592,97 @@ const Index = () => {
                 <Icon name="ChevronRight" size={24} className="text-accent" />
               </div>
             </Card>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showRegisterDialog} onOpenChange={setShowRegisterDialog}>
+        <DialogContent className="bg-card border-primary/30 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <Icon name="UserPlus" size={28} className="text-primary" />
+              Регистрация
+            </DialogTitle>
+            <DialogDescription className="text-base">
+              Тариф: <span className="font-semibold text-primary">{selectedPlan}</span>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">Имя пользователя</label>
+              <Input
+                value={registerForm.username}
+                onChange={(e) => {
+                  setRegisterForm({...registerForm, username: e.target.value});
+                  setRegisterError('');
+                }}
+                placeholder="username"
+                className="bg-background border-border/50"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">Email</label>
+              <Input
+                type="email"
+                value={registerForm.email}
+                onChange={(e) => {
+                  setRegisterForm({...registerForm, email: e.target.value});
+                  setRegisterError('');
+                }}
+                placeholder="your@email.com"
+                className="bg-background border-border/50"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">Пароль</label>
+              <Input
+                type="password"
+                value={registerForm.password}
+                onChange={(e) => {
+                  setRegisterForm({...registerForm, password: e.target.value});
+                  setRegisterError('');
+                }}
+                placeholder="Минимум 6 символов"
+                className="bg-background border-border/50"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">Подтвердите пароль</label>
+              <Input
+                type="password"
+                value={registerForm.confirmPassword}
+                onChange={(e) => {
+                  setRegisterForm({...registerForm, confirmPassword: e.target.value});
+                  setRegisterError('');
+                }}
+                placeholder="Повторите пароль"
+                className="bg-background border-border/50"
+              />
+            </div>
+
+            {registerError && (
+              <p className="text-destructive text-sm flex items-center gap-1">
+                <Icon name="AlertCircle" size={14} />
+                {registerError}
+              </p>
+            )}
+
+            <div className="bg-muted/30 p-4 rounded-lg">
+              <p className="text-sm text-muted-foreground">
+                Регистрируясь, вы соглашаетесь с условиями использования и политикой конфиденциальности
+              </p>
+            </div>
+
+            <Button 
+              onClick={handleRegister}
+              className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+            >
+              <Icon name="Check" size={18} className="mr-2" />
+              Зарегистрироваться
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
