@@ -4,7 +4,9 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
+import RootPanel from '@/components/RootPanel';
 
 const Index = () => {
   const [messages, setMessages] = useState<Array<{text: string, isUser: boolean}>>([
@@ -12,6 +14,10 @@ const Index = () => {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [activeSection, setActiveSection] = useState('hero');
+  const [showPromoDialog, setShowPromoDialog] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
+  const [isRootMode, setIsRootMode] = useState(false);
+  const [promoError, setPromoError] = useState('');
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
@@ -27,6 +33,20 @@ const Index = () => {
     setActiveSection(id);
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  const handlePromoSubmit = () => {
+    if (promoCode.toLowerCase() === 'vver') {
+      setIsRootMode(true);
+      setShowPromoDialog(false);
+      setPromoError('');
+    } else {
+      setPromoError('Неверный промокод!');
+    }
+  };
+
+  if (isRootMode) {
+    return <RootPanel />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
@@ -54,9 +74,20 @@ const Index = () => {
             ))}
           </div>
 
-          <Button className="bg-gradient-to-r from-primary to-secondary hover:opacity-90">
-            Начать
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setShowPromoDialog(true)}
+              className="border-destructive/30 hover:bg-destructive/10"
+            >
+              <Icon name="Key" size={16} className="mr-1" />
+              Промокод
+            </Button>
+            <Button className="bg-gradient-to-r from-primary to-secondary hover:opacity-90">
+              Начать
+            </Button>
+          </div>
         </div>
       </nav>
 
@@ -404,6 +435,47 @@ const Index = () => {
           </p>
         </div>
       </footer>
+
+      <Dialog open={showPromoDialog} onOpenChange={setShowPromoDialog}>
+        <DialogContent className="bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="Key" size={24} className="text-primary" />
+              Введите промокод
+            </DialogTitle>
+            <DialogDescription>
+              Специальные коды открывают доступ к скрытым функциям
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <div>
+              <Input
+                value={promoCode}
+                onChange={(e) => {
+                  setPromoCode(e.target.value);
+                  setPromoError('');
+                }}
+                onKeyPress={(e) => e.key === 'Enter' && handlePromoSubmit()}
+                placeholder="Введите промокод..."
+                className="bg-background border-border/50 text-center text-lg tracking-widest uppercase"
+              />
+              {promoError && (
+                <p className="text-destructive text-sm mt-2 flex items-center gap-1">
+                  <Icon name="AlertCircle" size={14} />
+                  {promoError}
+                </p>
+              )}
+            </div>
+            <Button 
+              onClick={handlePromoSubmit} 
+              className="w-full bg-gradient-to-r from-destructive to-destructive/60 hover:opacity-90"
+            >
+              <Icon name="Unlock" size={18} className="mr-2" />
+              Активировать
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
